@@ -1,3 +1,6 @@
 *Zone.Identifier
 .DS_Store
 *.swp
+
+# Local design notes; not published with the docs repo
+design/

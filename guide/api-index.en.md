@@ -88,7 +88,7 @@ Each layer’s `*_open()` returns `int`: 0 on success; negative values are error
 
 | Task | Doc |
 |------|------|
-| Add tablet App | [Add tablet App](../skills/celestia-application.en.md) |
-| Add cloud platform | [Add cloud platform](../skills/celestia-application.en.md) |
-| Add Framework service | [Add Framework service](../skills/celestia-framework.en.md) |
-| Add SoC | [Add SoC](../skills/celestia-hardware.en.md) |
+| Add tablet App | Add tablet App（见 `AGENTS.md` / DevStudio Skill） |
+| Add cloud platform | Add cloud platform（见 `AGENTS.md` / DevStudio Skill） |
+| Add Framework service | Add Framework service（见 `AGENTS.md` / DevStudio Skill） |
+| Add SoC | Add SoC（见 `AGENTS.md` / DevStudio Skill） |

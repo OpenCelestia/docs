@@ -39,7 +39,7 @@ so the same upper-layer sources can build camera, AI glasses, tablet, and wearab
 
 **Key constraint**: Upper layers do not branch on OS. Linux vs AOS differences are confined to —
 POSIX compatibility in `project/<product>/`, and chip implementations in `hardware/**/hal/<SoC>/`.
-Cross-OS porting: [celestia-aos-port](../skills/celestia-aos-port.en.md).
+Cross-OS porting: celestia-aos-port（见 `AGENTS.md` / DevStudio Skill）.
 
 ## 2. Layering Model
 
@@ -136,7 +136,7 @@ modules[].type = "so"
 `module_start()` runs **after** `app_main_start_framework_modules()`, so `app_main_get_*()` handles are safe.
 
 > AOS has no `dlopen`; SOs become `.a` static link; entry names unchanged; see
-> [celestia-aos-port](../skills/celestia-aos-port.en.md).
+> celestia-aos-port（见 `AGENTS.md` / DevStudio Skill）.
 
 ### 4.3 What Lives in One Process
 

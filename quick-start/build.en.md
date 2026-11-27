@@ -95,7 +95,7 @@ CONFIG_APP_PACKAGES_IPCAMERA   = y
 CONFIG_APP_MAIN_TARGET  = mira_main
 ```
 
-> Differences between aos (RTOS) and Linux products (POSIX compat shims, `.so`→`.a` static linking, BSP kernel patches) are in the [AOS port skill](../skills/celestia-aos-port.en.md).
+> Differences between aos (RTOS) and Linux products (POSIX compat shims, `.so`→`.a` static linking, BSP kernel patches) are in the AOS port skill（见 `AGENTS.md` / DevStudio Skill）.
 
 ## Build commands
 
@@ -153,4 +153,4 @@ out/install/
 
 - [Deploy and on-board verification](deploy.en.md)
 - [BSP and product assembly](bsp-and-products.en.md)
-- [Port Linux products to AOS (RTOS)](../skills/celestia-aos-port.en.md) (new RTOS product / aos differences)
+- Port Linux products to AOS (RTOS)（见 `AGENTS.md` / DevStudio Skill） (new RTOS product / aos differences)

@@ -140,4 +140,4 @@ Normal logs:
 ## Further reading
 
 - [guide/application.en.md](../guide/application.en.md) — launch_mode and modules
-- [celestia-project skill](../skills/celestia-project.en.md) — board overlay and serial
+- celestia-project skill（见 `AGENTS.md` / DevStudio Skill） — board overlay and serial

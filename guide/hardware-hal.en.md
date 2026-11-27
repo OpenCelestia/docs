@@ -427,7 +427,7 @@ Five products: `anypi_nova` (AV200 / V1.04), `anypi_nova_dev` (AV200 / V1.04), `
 | ⑥ | system/core (only when adding new module numbers) | Append `HARDWARE_MODULE_*` in `system_error.h` |
 | ⑦ | Build and board test L1→L5 | `./build.sh --product-name <p>` |
 
-Module list and boundaries: [Adding a SoC](../skills/celestia-hardware.en.md#new-soc-chip-sdk--per-module-hal), [roles §4](../quick-start/roles.en.md#4-new-soc-port-developer).
+Module list and boundaries: Adding a SoC（见 `AGENTS.md` / DevStudio Skill）, [roles §4](../quick-start/roles.en.md#4-new-soc-port-developer).
 
 ---
 
@@ -514,7 +514,7 @@ flowchart LR
 - System overview: [architecture/overview.en.md](../architecture/overview.en.md)
 - Framework: [framework.en.md](framework.en.md)
 - HAL API: [hardware-api.en.md](hardware-api.en.md)
-- New SoC: [Adding a SoC](../skills/celestia-hardware.en.md)
+- New SoC: Adding a SoC（见 `AGENTS.md` / DevStudio Skill）
 - System Core: [system-core.en.md](system-core.en.md)
 - Build and BSP: [quick-start/bsp-and-products.en.md](../quick-start/bsp-and-products.en.md)
 - API index: [guide/api-index.en.md](api-index.en.md)

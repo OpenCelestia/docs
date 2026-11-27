@@ -41,7 +41,7 @@ Full DCO text: <https://developercertificate.org/>. Commits without `Signed-off-
 - Copyright line format: `Copyright (c) <current year> Guangzhou Anyka Microelectronics Co., Ltd.`
   (use the current year; company name as shown).
 - Files must not start with a BOM; the SPDX line must be the absolute first line.
-- Match surrounding comment density, naming, and indentation; naming/header rules in `skills/celestia-contributing.en.md`.
+- Match surrounding comment density, naming, and indentation; naming/header rules in the celestia-contributing Skill hit by `AGENTS.md`.
 
 ## Security and Sensitive Information
 

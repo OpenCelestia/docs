@@ -1,5 +1,3 @@
-<p align="right"><a href="build.en.md">English</a> | <b>中文</b></p>
-
 # 构建指南
 
 > 前置：已完成 [源码下载](download.md) 与芯片 SDK 放置。
@@ -16,6 +14,7 @@ flowchart LR
     style S3 fill:#ecfdf5,stroke:#10b981
     style S4 fill:#dcfce7,stroke:#16a34a
 ```
+
 
 ## 前置条件
 
@@ -95,7 +94,7 @@ CONFIG_APP_PACKAGES_IPCAMERA   = y
 CONFIG_APP_MAIN_TARGET  = mira_main
 ```
 
-> aos 产品（RTOS）与 Linux 产品的差异（POSIX compat 垫片、`.so`→`.a` 静态链接、BSP 内核补丁）见 [AOS 移植 skill](../skills/celestia-aos-port.md)。
+> aos 产品（RTOS）与 Linux 产品的差异（POSIX compat 垫片、`.so`→`.a` 静态链接、BSP 内核补丁）见 AOS 移植 skill。
 
 ## 编译命令
 
@@ -153,4 +152,4 @@ out/install/
 
 - [部署与上板验证](deploy.md)
 - [BSP 与产品组装](bsp-and-products.md)
-- [Linux 产品移植 AOS（RTOS）](../skills/celestia-aos-port.md)（新 RTOS 产品 / aos 差异）
+- Linux 产品移植 AOS（RTOS）（新 RTOS 产品 / aos 差异）

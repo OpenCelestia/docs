@@ -174,10 +174,14 @@ docs/
 │   ├── directory-map.md          ← 目录职责与新文件放置
 │   └── images/overview.png
 ├── quick-start/                  ← download · build · deploy · bsp-and-products · roles
-├── guide/                        ← 分层概念与 API（application / framework / hal / system-core）
-│   ├── conventions.md            ← 文档与代码约定
-│   └── studio_agents.md            ← 同步代理：共用代理、产品落点、推送
-└── skills/                       ← 面向 AI 编码助手的可执行知识单元
+└── guide/                        ← 分层概念与 API + DevStudio
+    ├── README.md                 ← Guide 索引
+    ├── application.md            ← 应用层
+    ├── framework.md / *-api.md   ← 框架与 API
+    ├── hardware-hal.md / *-api.md← HAL 与 API
+    ├── system-core.md / *-api.md ← system/core 与 API
+    ├── api-index.md / conventions.md
+    └── devstudio.md               ← DevStudio CLI / MCP / Skill / 推板
 ```
 
 | 我想… | 读这个 |
@@ -191,40 +195,28 @@ docs/
 | 加一块新板 / 一颗新 SoC | [bsp-and-products.md](quick-start/bsp-and-products.md) |
 | 查 API | [api-index.md](guide/api-index.md) |
 | 确认文档与代码的约定 | [conventions.md](guide/conventions.md) |
-| 用 AI 按角色干活 | [roles.md](quick-start/roles.md) → [skills/](skills/README.md) |
-| 操作同步代理、把应用推到板子 | [studio_agents.md](guide/studio_agents.md) |
-| 排查上板问题 | [celestia-debug.md](skills/celestia-debug.md) |
+| 查分层 Guide | [guide/README.md](guide/README.md) |
+| 安装 / 使用 DevStudio（CLI / MCP / 推板） | [devstudio.md](guide/devstudio.md) |
+| 用 AI 按场景干活 | [roles.md](quick-start/roles.md) → 工程根 `AGENTS.md` 命中的 Skill |
+| 排查上板 / 推应用 | [devstudio.md](guide/devstudio.md) §7 · celestia-debug / celestia-studio Skill |
 
-### 7.1 按角色进入
+### 7.1 按场景进入
 
-选角色 → 填写表在 [roles.md](quick-start/roles.md) → AI 读对应 skill 落地。
+直接说目标 → AI 按 [roles.md](quick-start/roles.md) 用 Ask 补齐缺项 → 读 `AGENTS.md` 命中的 Skill 落地。
 
-| 角色 | 关注点 | 入口 |
+| 场景 | 关注点 | 入口 |
 |:-----|:-------|:-----|
-| 新产品移植 | BOARD + 形态；`IOTCamera` 走 `packages/ipcamera` SO | [roles §2](quick-start/roles.md#2-新产品移植开发者) |
-| 应用开发 | 仿现有 App，只走 Framework 公开接口 | [roles §3](quick-start/roles.md#3-应用开发者) |
-| 新芯片移植 | HAL + board overlay，公开头不改 | [roles §4](quick-start/roles.md#4-新芯片移植开发者) |
-| 调试维护 | 贴 log → Bug A–G → 闭环 | [roles §5](quick-start/roles.md#5-调试与维护) |
+| 新产品 / 新板 | BOARD + 形态；`IOTCamera` 走 `packages/ipcamera` SO | [roles §2](quick-start/roles.md#2-新产品--新板) |
+| 应用 | 仿现有 App，只走 Framework 公开接口 | [roles §3](quick-start/roles.md#3-应用) |
+| 新芯片 | HAL + board overlay，公开头不改 | [roles §4](quick-start/roles.md#4-新芯片) |
+| 调试 | 贴 log → Bug A–G → 闭环 | [roles §5](quick-start/roles.md#5-调试) |
 
 ---
 
 ## 8. Skills（AI 可执行知识）
 
-唯一源：[skills/README.md](skills/README.md)。`.claude/skills/`、`.cursor/skills/` 仅放其副本。
-
-| Skill | 范围 |
-|:------|:-----|
-| [celestia](skills/celestia.md) | 路由 · 跨层规则 · 分层编译 |
-| [celestia-aos-port](skills/celestia-aos-port.md) | Linux 产品 → AOS（RTOS）移植 |
-| [celestia-application](skills/celestia-application.md) | App · cloud · IOTCamera SO |
-| [celestia-framework](skills/celestia-framework.md) | 服务层 |
-| [celestia-hardware](skills/celestia-hardware.md) | HAL · 新增 SoC |
-| [celestia-system-core](skills/celestia-system-core.md) | system/core |
-| [celestia-project](skills/celestia-project.md) | 产品 · BOARD · BSP |
-| [celestia-scripts](skills/celestia-scripts.md) | build.sh |
-| [celestia-third-party](skills/celestia-third-party.md) | third_party |
-| [celestia-debug](skills/celestia-debug.md) | 上板 · PASS/FAIL · Bug A–G |
-| [celestia-contributing](skills/celestia-contributing.md) | 规范 |
+Skill 正文在 `devstudio/celestia/`、`devstudio/sdk/`，由工程根 **`AGENTS.md`** 按场景引用（`./build.sh` / `devstudio init` 生成）。
+**不要**复制到 `.cursor` / `.claude` / `.vscode`。用法见 [guide/devstudio.md](guide/devstudio.md)；MCP 定义在 `devstudio/ide/`。
 
 ---
 
@@ -243,6 +235,6 @@ docs/
 
 [回到顶部](#celestia) · [架构总览](architecture/overview.md) ·
 [产品形态](architecture/form-factor.md) · [术语对照表](glossary.md) ·
-[约定](guide/conventions.md) · [同步代理](guide/studio_agents.md)
+[约定](guide/conventions.md) · [DevStudio](guide/devstudio.md)
 
 </div>

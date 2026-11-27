@@ -1,5 +1,3 @@
-<p align="right"><a href="system-core-api.en.md">English</a> | <b>中文</b></p>
-
 # System Core API 参考手册（对外可查接口）
 
 > **本文范围**：System Core 对外可查接口参考：错误码位布、日志、配置、线程、时间、内存、容器与工具函数。

@@ -1,5 +1,3 @@
-<p align="right"><a href="framework.en.md">English</a> | <b>中文</b></p>
-
 # Framework Services
 
 > **本文范围**：Framework 服务层：服务清单与职责、统一生命周期（`*_open()` → ops → `*_close()`）、各服务的典型调用流程与依赖边界。
@@ -142,6 +140,8 @@ typedef struct {
 > `multimedia_open()` 不会立即初始化 HAL；摄像头 HAL 在第一次 `stream_reg_client()` 或 `prepare()` 时懒初始化。
 
 ### 2.3 Recorder API（`multimedia->recorder`）
+
+> 主/子码流落 T 卡的调用顺序、限制与改 framework 边界见文末「主码流 / 子码流 H.264·H.265 录像落 T 卡（专题）」。
 
 ```mermaid
 stateDiagram-v2
@@ -904,6 +904,468 @@ flowchart LR
 - HAL API：[hardware-api.md](hardware-api.md)
 - System Core：[system-core.md](system-core.md)
 - Framework API：[framework-api.md](framework-api.md)
-- 新增服务：[新增 Framework 服务](../skills/celestia-framework.md)
+- 新增服务：新增 Framework 服务
 - 构建与 BSP：[quick-start/bsp-and-products.md](../quick-start/bsp-and-products.md)
 - API 索引：[guide/api-index.md](api-index.md)
+
+---
+
+## 主码流 / 子码流 H.264·H.265 录像落 T 卡（专题）
+
+应用层通过 `mm->recorder->start(handle)` 录像。一次 `start` 把**一路**已编码视频（可带一路音频）封装成 T 卡上的一个文件。主码流、子码流要都是 H.264 或 H.265，编码在 `fw_video_config.json` 里定；落到哪一路，由 `set_dynamic_param()` 的 `video_stream_index` 选定。
+
+Nova、Luna 现网都是这条链路，而且都是**同一时刻只落一路**。下面按当前代码说明。
+
+句柄来自 `app_main_get_multimedia()`，接口在 `framework/services/multimedia/include/multimedia.h`。
+
+---
+
+## 结论：应用调用，还是改 framework
+
+应用现有调用就能完成的，是同一时刻一个文件、一条视频轨。主码流和子码流同时各写一个文件，或者一个文件里放两路不同编码，都要改 framework。
+
+### 只改 application（再加板级 JSON）
+
+| 要做的事 | 怎么做 |
+|---|---|
+| 录主码流或子码流中的一路到 T 卡 | `create` → `set_profile(CARD_STORAGE)` → `set_output_file` → `set_dynamic_param(video_stream_index)` → `prepare` → `start`。Nova、Luna 现网就是这样 |
+| 这一路用 H.264 还是 H.265 | 改该路 `fw_video_config.json` 的 `codec_mode`（0 或 1），并配上 `avc` 或 `hevc`。不改 framework 代码 |
+| 两路编码器同时出帧，文件里只存一路 | 两路 `codec_mode` 各自设置。`start` 只订阅 `video_stream_index` 选中的那一路 |
+| 先停一路再开另一路，轮流落卡 | 当前 handle `stop` + `destroy` 后，换 role 和路径再走一遍 |
+
+### 必须改 framework
+
+| 需求 | 改哪里 | 应用侧 |
+|---|---|---|
+| 主、子同时各写一个 MP4 | `pipeline.c`：每个卡存储节点的 `camera_id` 不要都写成 0。`record_mamager.c`：按这个 id 各留一份 `record_mgr` | 仍是第 5 节的两次 `start`，不必加新公开接口 |
+| 一个文件里两条视频轨，编码各自指定 | `media_mux_info_t`、`mp4_std_mux.c`、`media_record.c`，以及 `media_dynamic_param_t` 增加第二路 `video_stream_index`。现有 mux 只有一条 `video_info` | 一个 recorder、一个 `set_output_file`。改动落地前，一个文件的模式应直接失败 |
+| 录像中用 `stream_set_enc_param()` 切换 H.264/H.265 | `camera_service.c` 的 `camera_service_set_enc_param()` 现在直接返回成功，不重开 VENC | 不改这里时，编码只跟 JSON |
+
+### 改动位置
+
+**1. 两路同时各写一个文件**
+
+应用连续两次 `start` 不够。`pipeline.c` 里卡存储节点把 `camera_id` 写成 0；`record_mamager.c` 按 `camera_id` 只保留一份 `record_mgr`。第二次 `start` 改的是同一份管理器的路径和 `video_stream_id`。
+
+要改的位置：
+
+- `framework/services/multimedia/core/pipeline.c`：每个 CARD_STORAGE 节点使用不同的 `camera_id`（0 和 1 即可，`RECORD_MAX_DEV` 为 4）
+- `framework/services/multimedia/media/record/record_mamager.c`：确认两份 `s_recs[]` 各自 `record_init` / 写线程，互不覆盖 `disk_save_path` 和 `video_stream_id`
+- 两路都开音频时，确认音频 `stream_reg_client` 允许多个客户端；只给主文件带音频则不用动音频
+
+应用侧保持第 5 节的两次 `record_stream_to_tfcard()`，不必再加新的公开接口。
+
+**2. 一个文件里两条视频轨、编码各自指定**
+
+现有封装只有一条视频轨：`media_codec_types.h` 的 `media_mux_info_t` 只有一个 `video_info`，`mp4_std_mux.c` 只建一条视频 track，`media_record.c` 只 `stream_reg_client` 一路。
+
+要改的位置：
+
+- `framework/services/multimedia/av_codec/media_mux/media_codec_types.h`：容器信息能描述第二路视频（编码、宽高、帧率）
+- `framework/services/multimedia/av_codec/media_mux/mp4_std_mux.c`：同一个 MP4 写第二条视频 track
+- `framework/services/multimedia/media/record/media_record.c`：写线程同时拉两路 `video_stream_id`，按编码分别 `media_mux_add_video`
+- `multimedia.h` 的 `media_dynamic_param_t`：在现有一个 `video_stream_index` 之外，给出第二路下标。应用用这一个 recorder、一个 `set_output_file` 表示「一个文件」
+
+Nova 相机落成一个 MP4、主轨和子轨都是 H.264 的改动清单见 [nova-camera-dual-h264.md](../design/nova/nova-camera-dual-h264.md)。这组封装和按轨解码完成之前，应用不要把一个文件的模式当成已经写进了两路。
+
+**3. 运行时切换某一路的 H.264 / H.265**
+
+`camera_service.c` 的 `camera_service_set_enc_param()` 直接返回成功，不重开 VENC。应用调用 `mm->camera->stream_set_enc_param()` 不会改变文件编码。
+
+要改的位置：`framework/services/multimedia/camera/core/camera_service.c`，把 `codec` 写回 `streams_cfg` 并重开对应 VENC。不改这里时，换编码只改 JSON。
+
+---
+
+## 1. 调用顺序
+
+状态机：`create` → `set_profile` → `set_output_file` →（可选）`set_dynamic_param` / `set_max_duration` → `prepare` → `start` → `stop` → `destroy`。
+
+`MEDIA_OUTPUT_CARD_STORAGE` 在 `prepare` 里建成卡存储节点，`start` 才真正 `record_enable_with_path()` 并 `stream_reg_client()` 拉帧写文件。
+
+```mermaid
+sequenceDiagram
+    participant App
+    participant Rec as mm->recorder
+    participant Cam as mm->camera
+    participant Card as T卡 MP4
+
+    App->>Cam: stream_index_by_role("main" / "dashcam" / ...)
+    App->>Rec: create
+    App->>Rec: set_profile(CARD_STORAGE, video+audio)
+    App->>Rec: set_output_file(/mnt/tfcard/.../xxx.mp4)
+    App->>Rec: set_dynamic_param(group_id, video_stream_index)
+    App->>Rec: prepare
+    App->>Rec: start
+    Rec->>Card: 订阅该路码流，封装写入
+    App->>Rec: stop
+    App->>Rec: destroy
+```
+
+Luna dashcam（`application/packages/wearable/dashcam/dashcam_record.c`）是现网最完整的写法：按 role 绑定码流，路径指向 T 卡，分段复用同一个 recorder。Nova ipcamera（`application/packages/ipcamera/ipc_cam/ipc_cam_record.c`）步骤相同，但没有 `set_dynamic_param`，因此落到 `stream_get_id(camera=0, channel=0)` 的第一路。
+
+---
+
+## 2. 编码从哪来
+
+录像文件里的视频编码等于被选中那路 `streams[]` 的 `codec_config.codec_mode`。`camera->stream_set_enc_param()` 目前直接返回成功，不重开 VENC（`camera_service_set_enc_param`）。改编码改 JSON，改完重启进程让配置重新加载。
+
+| `codec_mode` | 编码 | `rc_config` | 能否进本次录像 |
+|---|---|---|---|
+| 0 | H.264 | `avc` | 可以 |
+| 1 | H.265 | `hevc` | 可以 |
+| 2 | MJPEG | `mjpeg` | 抓拍用，不是本需求 |
+| 3 | YUV / NV12 | 无 | 预览用，封装进不了 H.264/H.265 文件 |
+
+`prepare` 在 `video_stream_index >= 0` 时用 `stream_get_enc_param()` 回读该路的宽高、帧率、GOP、codec，写入 mux。扩展名用 `.mp4` 时，容器跟着这路真实编码走。
+
+主、子都要 H.264 或 H.265：两路的 `codec_mode` 都写成 0 或 1，并配上对应的 `avc` / `hevc` 码控。两路可以一个 H.264、一个 H.265。预览路（`codec_mode` 3）继续给 LCD，不要拿它当录像源。
+
+示例（主 H.265、子 H.264）：
+
+```json
+{
+    "name": "video_main",
+    "role": "main",
+    "channel_group_id": 0,
+    "codec_config": { "codec_mode": 1, "profile": 4, "level": 40 },
+    "rc_config": { "hevc": { "rc_mode": 1, "vbr": { "max_bitrate": 4096 } } }
+}
+```
+
+```json
+{
+    "name": "video_sub",
+    "role": "sub",
+    "channel_group_id": 1,
+    "codec_config": { "codec_mode": 0, "profile": 0, "level": 40 },
+    "rc_config": { "avc": { "rc_mode": 1, "vbr": { "max_bitrate": 1024 } } }
+}
+```
+
+`channel_group_id` 是 `channels[]` 的下标，分辨率在对应 `channels[group]` 里。子码流用更小的一组分辨率。
+
+---
+
+## 3. Nova、Luna 现在各录哪一路
+
+配置在板级 rootfs：
+
+`project/<product>/system/<SoC>/<SDK>/board/<Board>/rootfs/utils/etc/config/fw_video_config.json`
+
+运行时路径是 `/etc/config/fw_video_config.json`。
+
+### Nova（`anypi_nova`，ipcamera）
+
+`application/packages/ipcamera/ipc_cam/ipc_cam_record.c`。
+
+`set_profile(CARD_STORAGE)` + `set_output_file` + `prepare` + `start`。未调用 `set_dynamic_param`，`video_stream_index` 保持 -1，`group_id` 为 0，写线程用 `stream_get_id(0, 0)`，命中 channel 0 上的第一路，即 `role=main`。
+
+| role | group | codec_mode | 现网 |
+|---|---|---|---|
+| `main` | 0 | 0 H.264 | ipcamera 循环录像落这一路 |
+| `preview` | 1 | 3 YUV | 预览，不能当录像源 |
+| `preview_bg` | 1 | 0 H.264 | 已编码的子码流，现网给火山推流，不落卡 |
+| `picture` | 0 | 2 MJPEG | 抓拍 |
+
+文件：`/mnt/tfcard/Ipcam/DVR_YYYYMMDD_HHMMSS.mp4`。挂载点宏 `IPC_CAM_MOUNT_DEFAULT`。
+
+### Nova 相机（tablet）
+
+`application/packages/tablet/camera/tablet_camera_capture.c` 的 `tablet_camera_record_start()`。
+
+调用与 Luna 相机相同：`CARD_STORAGE` + `set_output_file` + `prepare` + `start`，没有 `set_dynamic_param`，因此落到 group 0 第一路 `main`（JSON 里是 H.264）。函数里的 `stream_set_enc_param(H.264)` 不改变编码器。音频设为 AAC。预览仍是独立的 NV12 路，不进这个 MP4。
+
+文件目录：`/mnt/album/Record/`（板载相册，宏 `TABLET_ALBUM_ROOT`）。这不是 ipcamera 用的 `/mnt/tfcard`。
+
+### Luna dashcam
+
+`application/packages/wearable/dashcam/dashcam_record.c`。
+
+开录前 `stream_index_by_role("dashcam")`，`set_dynamic_param` 写入：
+
+- `group_id` = 该路 `media_stream_info_t.channel`（即 `channel_group_id`）
+- `video_stream_index` = role 对应的 `streams[]` 下标
+- 码率 / 帧率 / GOP 传 -1，表示不改 JSON 里的值
+
+| role | group | codec_mode | 现网 |
+|---|---|---|---|
+| `main` | 0 | 1 H.265 | 相机能力集里的主码流 |
+| `dashcam` | 0 | 0 H.264 | 循环录像落这一路（与 main 同分辨率组） |
+| `dashcam_rtsp` | 1 | 0 H.264 | 子码流，现网给 RTSP，不落卡 |
+| `preview` | 2 | 3 YUV | LCD |
+
+文件：`/mnt/tfcard/Dashcam/LoopVideo/DVR_YYYYMMDD_HHMMSS.mp4`。
+
+同一分辨率组上 `main` 与 `dashcam` 都是 group 0。不设 `video_stream_index` 时 `stream_get_id(0, 0)` 返回**第一路**，也就是 `main`（H.265）。dashcam 必须显式带上下标，否则文件内容和 role 对不上。
+
+### Luna 相机
+
+`application/packages/wearable/camera/wearable_camera_capture.c` 的 `wearable_camera_record_start()`。
+
+同样 `CARD_STORAGE` + `set_output_file` + `start`，没有 `set_dynamic_param`，因此落到 group 0 第一路 `main`。JSON 里这路是 H.265。函数里调用的 `stream_set_enc_param(H.264)` 不改变编码器。
+
+文件目录：`/mnt/tfcard/Record/`。
+
+---
+
+## 4. 指定主码流或子码流再落卡
+
+下面按 dashcam 的绑定方式写。`role` 用 JSON 里的名字：Nova 主码流 `"main"`、已编码子码流 `"preview_bg"`；Luna 主码流 `"main"` 或 `"dashcam"`、子码流 `"dashcam_rtsp"`。应用若新增了 `"sub"`，用 `"sub"`。
+
+T 卡先挂上。Nova / Luna 都走 `storage_open()` → `tfcard->init("/mnt/tfcard")`，确认 `STORAGE_TFCARD_STATUS_NORMAL` 后再取目录。路径必须在挂载点下；不调用 `set_output_file` 时，录像模块默认写 `/tmp/mnt/dvr`，那不是应用用的 T 卡挂载点。
+
+音频：MP4 只接受 AAC、G.711A、G.711U。Nova ipcamera 和 Luna dashcam 在 `start` 前把音频设成 G.711A 8 kHz 单声道，与 `fw_audio_config.ini` 一致。其他音频类型，`start` 会拒绝卡存储节点。
+
+```c
+#include "app_main.h"
+#include "multimedia.h"
+
+static int record_stream_to_tfcard(const char *role, const char *mp4_path,
+                                   media_recorder_handle_t *out)
+{
+    multimedia_t *mm = (multimedia_t *)app_main_get_multimedia();
+    media_recorder_profile_t profile;
+    media_dynamic_param_t dyn;
+    media_stream_info_t *streams = NULL;
+    int stream_num = 0;
+    int idx = -1;
+    int group = 0;
+    int ret;
+
+    if (mm == NULL || mm->recorder == NULL || mm->camera == NULL || role == NULL || mp4_path == NULL)
+        return -1;
+
+    ret = mm->camera->stream_index_by_role(role, &idx);
+    if (ret != 0 || idx < 0)
+        return -1;
+
+    if (mm->camera->stream_get_configs(&streams, &stream_num) == 0 && streams != NULL) {
+        for (int i = 0; i < stream_num; i++) {
+            if (streams[i].stream_id == idx) {
+                group = streams[i].channel;
+                break;
+            }
+        }
+    }
+
+    ret = mm->recorder->create(out);
+    if (ret != 0 || *out == NULL)
+        return -1;
+
+    memset(&profile, 0, sizeof(profile));
+    profile.module_flags.enable_video = 1;
+    profile.module_flags.enable_audio = 1;
+    profile.output_flags = MEDIA_OUTPUT_CARD_STORAGE;
+
+    ret = mm->recorder->set_profile(*out, &profile);
+    if (ret != 0)
+        goto fail;
+
+    /* 带文件名的绝对路径：/mnt/tfcard/.../DVR_YYYYMMDD_HHMMSS.mp4 */
+    ret = mm->recorder->set_output_file(*out, mp4_path);
+    if (ret != 0)
+        goto fail;
+
+    memset(&dyn, 0, sizeof(dyn));
+    dyn.group_id = group;
+    dyn.video_stream_index = idx;
+    dyn.video_param.bitrate = -1;
+    dyn.video_param.framerate = -1;
+    dyn.video_param.gop = -1;
+    dyn.audio_param.bitrate = -1;
+    dyn.audio_param.sample_rate = -1;
+    dyn.source_id = -1;
+    ret = mm->recorder->set_dynamic_param(*out, &dyn);
+    if (ret != 0)
+        goto fail;
+
+    ret = mm->recorder->prepare(*out, NULL);
+    if (ret != 0)
+        goto fail;
+
+    ret = mm->recorder->start(*out);
+    if (ret != 0)
+        goto fail;
+
+    if (mm->recorder->repair_set_exclude)
+        mm->recorder->repair_set_exclude(mp4_path);
+    return 0;
+
+fail:
+    mm->recorder->destroy(*out);
+    *out = NULL;
+    return -1;
+}
+```
+
+停录：
+
+```c
+mm->recorder->stop(handle);
+if (mm->recorder->repair_set_exclude)
+    mm->recorder->repair_set_exclude(NULL);
+mm->recorder->destroy(handle);
+```
+
+分段循环（dashcam / ipcamera 的 worker）在 `stop` 之后可以保留 handle，下一段只 `set_output_file(新路径)` 再 `start`。`STOPPED` 状态下 `set_output_file` 会同步卡存储节点里的路径。会话结束再 `destroy`。
+
+分段缝隙里，写线程会 `stream_unreg_client`。dashcam / ipcamera 在 `stop` 之前对正在录的那路调用 `camera->stream_hold(stream_id)`，下一段 `start` 完成并重新注册客户端之后再 `stream_release_hold`，避免这路 VENC 在缝隙里被收成预览保活。hold 的 stream id 必须是正在录的那一路。
+
+`start` 返回时，写线程可能还没完成 `stream_reg_client`。hold 至少留到客户端注册完成。
+
+---
+
+## 5. Luna / Nova 相机：主、子不同编码，一个文件或两个文件
+
+这一节的两次 `start` 是 framework 按「结论」第 1 项分开 `camera_id` 之后的应用写法。按现有 framework，第二次 `start` 会覆盖第一次，不会同时得到两个文件。一个文件装两路编码依赖「结论」第 2 项，应用现在调用会失败。
+
+相机入口：
+
+- Luna：`wearable_camera_record_start()`，目录 `/mnt/tfcard/Record/`
+- Nova：`tablet_camera_record_start()`，目录 `/mnt/album/Record/`
+
+两路的编码各自写在 `streams[]` 里，VENC 按路开，可以同时出帧。`start` 不负责改编码。开录前用 `stream_get_enc_param()` 核对，对不上就不要录。`preview` 保持 `codec_mode` 3，继续给 LCD。
+
+| 产品 | 主码流 role | 现网编码 | 子码流 role | 现网编码 |
+|---|---|---|---|---|
+| Luna 相机 | `main` | H.265（`codec_mode` 1，`hevc`） | `dashcam_rtsp` | H.264（`codec_mode` 0，`avc`） |
+| Nova 相机 | `main` | H.264（`codec_mode` 0，`avc`） | `preview_bg` | H.264。要改成 H.265 时只改这一路的 `codec_mode` 为 1，并把 `rc_config` 换成 `hevc` |
+
+子码流不要用 `preview`。那一路是 YUV，封装进不了 H.264/H.265 文件。
+
+落盘方式由应用自己选。现有接口能表达「两个文件」，不能表达「一个文件里两条不同编码的视频轨」。
+
+| `file_mode` | 结果 | 现网 |
+|---|---|---|
+| `CAMERA_RECORD_TWO_FILES` | 主、子各一个 `.mp4` | 两次 `start` 会写进同一份 `record_mgr`（`camera_id` 固定为 0）。第二路覆盖第一路的路径和码流，不会同时得到两个文件 |
+| `CAMERA_RECORD_ONE_FILE` | 一个容器里同时有主、子两条视频轨 | `media_mux_info_t` 只有一个 `video_info`。选这个模式应直接失败，不要静默只录主码流 |
+
+Luna 相机已有的 LCM2 是「预览 NV12 + 一路编码 MP4」打在一个容器里，不是主、子两路 H.264/H.265。
+
+```c
+enum {
+    CAMERA_RECORD_TWO_FILES = 0,
+    CAMERA_RECORD_ONE_FILE  = 1,
+};
+
+/* 第 4 节的 record_stream_to_tfcard()：按 role 绑定 video_stream_index 后 start。 */
+
+static int codec_matches(multimedia_t *mm, const char *role, media_video_codec_t expect)
+{
+    media_video_enc_param_t param;
+    int idx = -1;
+
+    memset(&param, 0, sizeof(param));
+    if (mm->camera->stream_index_by_role(role, &idx) != 0 || idx < 0)
+        return -1;
+    if (mm->camera->stream_get_enc_param(idx, &param) != 0)
+        return -1;
+    return param.codec == expect ? 0 : -1;
+}
+
+int camera_record_main_and_sub(int file_mode,
+                               const char *main_role, media_video_codec_t main_codec,
+                               const char *sub_role,  media_video_codec_t sub_codec,
+                               const char *main_path, const char *sub_path,
+                               media_recorder_handle_t *main_out,
+                               media_recorder_handle_t *sub_out)
+{
+    multimedia_t *mm = (multimedia_t *)app_main_get_multimedia();
+
+    if (mm == NULL || main_out == NULL || sub_out == NULL)
+        return -1;
+    *main_out = NULL;
+    *sub_out = NULL;
+
+    /* 编码以 JSON 为准。这里只核对，不调用 stream_set_enc_param。 */
+    if (codec_matches(mm, main_role, main_codec) != 0 ||
+        codec_matches(mm, sub_role, sub_codec) != 0)
+        return -1;
+
+    if (file_mode == CAMERA_RECORD_ONE_FILE)
+        return -1; /* mux 只有一条视频轨，无法把两路编码放进同一个文件 */
+
+    if (file_mode != CAMERA_RECORD_TWO_FILES || main_path == NULL || sub_path == NULL)
+        return -1;
+
+    if (record_stream_to_tfcard(main_role, main_path, main_out) != 0)
+        return -1;
+    if (record_stream_to_tfcard(sub_role, sub_path, sub_out) != 0) {
+        mm->recorder->stop(*main_out);
+        mm->recorder->destroy(*main_out);
+        *main_out = NULL;
+        return -1;
+    }
+    return 0;
+}
+```
+
+Luna 相机，主 H.265、子 H.264，两个文件：
+
+```c
+media_recorder_handle_t main_rec = NULL;
+media_recorder_handle_t sub_rec = NULL;
+
+camera_record_main_and_sub(
+    CAMERA_RECORD_TWO_FILES,
+    "main",         MEDIA_CODEC_VIDEO_H265,
+    "dashcam_rtsp", MEDIA_CODEC_VIDEO_H264,
+    "/mnt/tfcard/Record/VID_main.mp4",
+    "/mnt/tfcard/Record/VID_sub.mp4",
+    &main_rec, &sub_rec);
+```
+
+Nova 相机，主 H.264、子 H.265（`preview_bg` 的 `codec_mode` 已改为 1），两个文件：
+
+```c
+camera_record_main_and_sub(
+    CAMERA_RECORD_TWO_FILES,
+    "main",       MEDIA_CODEC_VIDEO_H264,
+    "preview_bg", MEDIA_CODEC_VIDEO_H265,
+    "/mnt/album/Record/VID_main.mp4",
+    "/mnt/album/Record/VID_sub.mp4",
+    &main_rec, &sub_rec);
+```
+
+同一个文件：
+
+```c
+/* 返回 -1。当前不要用一个路径同时装两路。 */
+camera_record_main_and_sub(
+    CAMERA_RECORD_ONE_FILE,
+    "main", MEDIA_CODEC_VIDEO_H265,
+    "dashcam_rtsp", MEDIA_CODEC_VIDEO_H264,
+    "/mnt/tfcard/Record/VID.mp4", NULL,
+    &main_rec, &sub_rec);
+```
+
+停录时两路都要 `stop` + `destroy`。在 framework 把两路 CARD_STORAGE 分到不同 `camera_id` 之前，上面的两次 `start` 不会同时各写一个 MP4。轮流录则先停一路再开另一路，沿用第 4 节即可。
+
+---
+
+## 6. 对照
+
+| 事项 | 谁改 | 现网做法 |
+|---|---|---|
+| 取多媒体句柄 | application | `app_main_get_multimedia()` |
+| 落卡标志 | application | `profile.output_flags = MEDIA_OUTPUT_CARD_STORAGE` |
+| 选哪一路 | application | `stream_index_by_role` + `set_dynamic_param.video_stream_index`；同时把 `group_id` 设成该路 channel |
+| 不指定下标时 | application | `stream_get_id(0, group_id)`，group 0 的第一路。Nova 是 `main`（H.264）；Luna 是 `main`（H.265） |
+| 编码 | 板级 JSON | `fw_video_config.json` 的 `codec_mode`：0 H.264，1 H.265 |
+| 运行时改编码 | framework | `camera_service_set_enc_param()` 空实现。不改则编码只跟 JSON |
+| T 卡路径 | application | Nova ipcamera `/mnt/tfcard/Ipcam/`，Nova 相机 `/mnt/album/Record/`，Luna dashcam `/mnt/tfcard/Dashcam/LoopVideo/`，Luna 相机 `/mnt/tfcard/Record/` |
+| 容器与音频 | application | `.mp4`。音频 AAC 或 G.711A / G.711U |
+| 同时两个文件 | framework | `pipeline.c` 的 `camera_id` 现为 0，两次 `start` 后一次覆盖前一次。分开 id 后应用仍调两次 `start` |
+| 一个文件两条视频轨 | framework | `media_mux_info_t` 只有一条 `video_info`。要改 mux、写线程和 `media_dynamic_param_t` |
+
+相关代码：
+
+- `framework/services/multimedia/include/multimedia.h`：`recorder_ops_t`、`MEDIA_OUTPUT_CARD_STORAGE`、`media_dynamic_param_t`
+- `framework/services/multimedia/core/recorder_impl.c`：`prepare` 按 `video_stream_index` 回读编码
+- `framework/services/multimedia/core/pipeline.c`：卡存储节点，`camera_id = 0`
+- `framework/services/multimedia/media/record/media_record.c`：写线程按 `video_stream_id` 订阅并封装
+- `framework/services/multimedia/camera/core/camera_service.c`：`stream_set_enc_param` 空实现，`stream_index_by_role`，`stream_get_id`
+- `application/packages/ipcamera/ipc_cam/ipc_cam_record.c`
+- `application/packages/tablet/camera/tablet_camera_capture.c`
+- `application/packages/wearable/dashcam/dashcam_record.c`
+- `application/packages/wearable/camera/wearable_camera_capture.c`

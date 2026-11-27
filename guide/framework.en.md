@@ -903,6 +903,6 @@ flowchart LR
 - HAL API: [hardware-api.en.md](hardware-api.en.md)
 - System Core: [system-core.en.md](system-core.en.md)
 - Framework API: [framework-api.en.md](framework-api.en.md)
-- New service: [Add Framework service](../skills/celestia-framework.en.md)
+- New service: Add Framework service（见 `AGENTS.md` / DevStudio Skill）
 - Build and BSP: [quick-start/bsp-and-products.en.md](../quick-start/bsp-and-products.en.md)
 - API index: [guide/api-index.en.md](api-index.en.md)

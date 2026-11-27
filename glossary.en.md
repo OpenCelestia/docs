@@ -170,10 +170,10 @@ This project uses **product form factor** for display and interaction shape (dev
 | **AOS toolchain** | `arm-none-eabi-`, default `/opt/arm-alios-eabi`; if missing, SDK tarball auto-extracts to `out/<product>/toolchain/` | `setup_toolchain.sh` |
 | ↳ Naming note | Toolchain dir `arm-alios-eabi` is **historical Anyka SDK naming**; not AliOS app framework dependency; docs/code use `aos` as OS id | Same as above |
 | **Linux** | `CONFIG_OS_NAME=linux`: processes, shared libs, full POSIX | `project/anypi_nova*`, `project/anypi_luna*` |
-| **musl / uClibc** | RISC-V (AV200) **musl** (`riscv64-anyka-linux-musl-`); ARM (AV100_V2) **uClibc** (`arm-anycloud-linux-uclibcgnueabi-`). **Different C libs ⇒ do not mix prebuilt artifacts** | Per-SoC SDK `rules.mk`, `docs/skills/celestia-scripts.en.md` |
+| **musl / uClibc** | RISC-V (AV200) **musl** (`riscv64-anyka-linux-musl-`); ARM (AV100_V2) **uClibc** (`arm-anycloud-linux-uclibcgnueabi-`). **Different C libs ⇒ do not mix prebuilt artifacts** | Per-SoC SDK `rules.mk`, `devstudio/celestia/` scripts Skill (see `AGENTS.md`) |
 | **rootfs** | Read-only root filesystem image; product diff via `project/<product>/system/<SoC>/<SDK>/board/<BOARD>/rootfs/` overlay | `build_rootfs.sh` |
 | ↳ Path difference | Linux: `rootfs/utils/etc/config/`; AOS (`anypi_mira_dev`): `rootfs/resource/etc/config/` | `project/anypi_mira_dev/system/Sky39AV130/V1.01/board/.../rootfs/resource/etc/config/` |
-| **POSIX compatibility layer** | AOS shims (thread/signal/time/socket, etc.) only in project overlay and HAL; **must not pollute shared code** | `docs/skills/celestia-aos-port.en.md` |
+| **POSIX compatibility layer** | AOS shims (thread/signal/time/socket, etc.) only in project overlay and HAL; **must not pollute shared code** | `devstudio/celestia/` aos-port Skill (see `AGENTS.md`) |
 
 ---
 
@@ -270,8 +270,8 @@ This project uses **product form factor** for display and interaction shape (dev
 | **`build.sh`** | Sole build entry: product select, toolchain, layered build, package | `./build.sh --product-name <product>` |
 | **`out/<product>/`** | Build output root: `install/`, `burntool/`, `release-src/`, `build/project/include/` (generated `config.h`) | `scripts/build.sh` |
 | **PASS/FAIL** | On-board validation closure (serial log + key path checks) | `docs/quick-start/deploy.en.md` |
-| **Bug A–G** | Debug skill fault taxonomy, maps symptoms to layer | `docs/skills/celestia-debug.en.md` |
-| **16MB NOR** | Low-cost flash budget, drives partitions and trimming | `docs/skills/celestia-project.en.md` |
+| **Bug A–G** | Debug skill fault taxonomy, maps symptoms to layer | `devstudio/celestia/` debug Skill (see `AGENTS.md`) |
+| **16MB NOR** | Low-cost flash budget, drives partitions and trimming | `devstudio/celestia/` project Skill (see `AGENTS.md`) |
 
 ---
 
@@ -296,7 +296,8 @@ This project uses **product form factor** for display and interaction shape (dev
 
 | Term | Meaning in this project | Code basis |
 |:-----|:------------------------|:-----------|
-| **skill** | **Executable knowledge** for AI coding assistants: boundaries, commands, debug paths | `docs/skills/<name>.en.md` |
+| **skill** | **Executable knowledge** for AI coding assistants: boundaries, commands, debug paths | Runtime: `devstudio/**/SKILL.md` (via workspace-root `AGENTS.md`) |
+| **DevStudio** | Workspace `devstudio/`: CLI / MCP / Skill; maintains `AGENTS.md` and `devstudio.yaml` | [guide/devstudio.en.md](guide/devstudio.en.md) |
 | **guide** | Human-facing **concepts and API** | `docs/guide/` |
 | **quick-start** | Linear path: clone → build → flash → validate | `docs/quick-start/` |
 | **Source-of-truth priority** | When docs vs code conflict: `tests/` › `*.c` › `*.h` › `Makefile` / `build.sh` / `config.mk` › `docs/` | `docs/CONTRIBUTING.en.md` |

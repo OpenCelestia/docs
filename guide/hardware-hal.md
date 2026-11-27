@@ -1,5 +1,3 @@
-<p align="right"><a href="hardware-hal.en.md">English</a> | <b>中文</b></p>
-
 # Hardware HAL
 
 > **本文范围**：硬件适配层（HAL）：公开头 `hardware/include/` 的契约、模块清单与能力、多 SoC 目录组织，以及新增 HAL 模块 / 新 SoC 的最小步骤。
@@ -427,7 +425,7 @@ flowchart LR
 | ⑥ | system/core（仅新模块号时） | `system_error.h` 追加 `HARDWARE_MODULE_*` |
 | ⑦ | 构建并 L1→L5 上板 | `./build.sh --product-name <p>` |
 
-模块清单与边界见 [celestia-hardware 新增 SoC](../skills/celestia-hardware.md#新增-soc芯片-sdk--逐模块-hal)、[roles §4](../quick-start/roles.md#4-新芯片移植开发者)。
+模块清单与边界见 celestia-hardware 新增 SoC、[roles §4](../quick-start/roles.md#4-新芯片)。
 
 ---
 
@@ -514,7 +512,7 @@ flowchart LR
 - 系统总览：[architecture/overview.md](../architecture/overview.md)
 - Framework：[framework.md](framework.md)
 - HAL API：[hardware-api.md](hardware-api.md)
-- 新增 SoC：[新增 SoC](../skills/celestia-hardware.md)
+- 新增 SoC：新增 SoC
 - System Core：[system-core.md](system-core.md)
 - 构建与 BSP：[quick-start/bsp-and-products.md](../quick-start/bsp-and-products.md)
 - API 索引：[guide/api-index.md](api-index.md)

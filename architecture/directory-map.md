@@ -15,6 +15,7 @@ celestia/                        # 源码根
 ├── hardware/                    # ③ 硬件适配层
 ├── system/core/                 # ④ 系统基础库
 ├── project/<product>/           # ⑤ 产品工程（配置 + overlay）
+├── devstudio/                    # IDE 工具层（CLI / MCP / Skill）
 ├── scripts/                     # 构建脚本
 ├── third_party/                 # 第三方组件
 └── docs/                        # 文档（本目录）
@@ -27,6 +28,7 @@ celestia/                        # 源码根
 | `hardware/` | ③ | 各 SoC 的外设与媒体能力实现，向上统一 ops | 业务逻辑、GUI、对上层符号的引用 |
 | `system/core/` | ④ | 日志、配置、线程、定时器、错误码、内存、加密、容器等基础库 | 任何对 ①②③ 的依赖 |
 | `project/` | ⑤ + 配置 | 每产品一份 `config.mk` 与 BSP overlay、rootfs 配置、打包脚本 | 公用业务代码 |
+| `devstudio/` | 工具 | CLI / MCP / Skill；维护根目录 `AGENTS.md` 与 `devstudio.yaml` | 产品业务源码 |
 | `scripts/` | 构建 | `build.sh` 主体、打包、工具链注入 | 运行时逻辑 |
 | `third_party/` | 依赖 | 第三方库源码与构建规则 | 业务代码、产品开关 |
 | `docs/` | 文档 | 本套文档 | 代码 |

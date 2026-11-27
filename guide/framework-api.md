@@ -1,5 +1,3 @@
-<p align="right"><a href="framework-api.en.md">English</a> | <b>中文</b></p>
-
 # Framework API 参考手册（对外可查接口）
 
 > **本文范围**：Framework 对外可查接口参考：逐服务给出枚举、结构、ops 与入口函数签名。
@@ -1233,7 +1231,7 @@ int nebula_protocol_close(nebula_protocol_t *nebula);
 ## 15. 参考
 
 - 概念与调用流：[framework.md](framework.md)
-- 扩展新功能：[新增 Framework 服务](../skills/celestia-framework.md)
+- 扩展新功能：新增 Framework 服务
 - System Core：[system-core.md](system-core.md)
 - HAL：[hardware-hal.md](hardware-hal.md)
 - API 索引：[guide/api-index.md](api-index.md)

@@ -1,5 +1,3 @@
-<p align="right"><a href="conventions.en.md">English</a> | <b>中文</b></p>
-
 # 约定与规范
 
 > **文档定位**：本文是 Celestia **文档与代码的统一约定**：写文档、写代码、改配置时以本文为准。

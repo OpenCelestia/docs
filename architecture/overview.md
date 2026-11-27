@@ -1,5 +1,3 @@
-<p align="right"><a href="overview.en.md">English</a> | <b>中文</b></p>
-
 # 架构总览
 
 > **本文范围**：分层模型、层间契约、运行期模型、配置模型、启动链路、数据流与构建产物。
@@ -37,7 +35,7 @@ Celestia 是面向**安凯微（Anyka）智能视觉 SoC** 的应用软件平台
 
 **关键约束**：上层代码不感知 OS 差异。Linux 与 AOS 的差异被收敛到两处 ——
 `project/<product>/` 下的 POSIX 兼容层，以及 `hardware/**/hal/<SoC>/` 的芯片实现。
-跨 OS 移植流程见 [celestia-aos-port](../skills/celestia-aos-port.md)。
+跨 OS 移植流程见 celestia-aos-port。
 
 ## 2. 分层模型
 
@@ -135,7 +133,7 @@ modules[].type = "so"
 `app_main_get_*()` 取到的句柄。
 
 > AOS 无 `dlopen`，SO 全部改为 `.a` 静态链入，入口名不变；详见
-> [celestia-aos-port](../skills/celestia-aos-port.md)。
+> celestia-aos-port。
 
 ### 4.3 一个进程里有什么
 

@@ -542,9 +542,9 @@ flowchart TB
 | ⑧ Build verify | `./build.sh --product-name <p>`; L1→L5 | image + on-board |
 
 > **Usually unchanged**: Application / Framework / `hardware/include/`.
-> **system/core**: leave as-is when only adding HAL for existing modules; append `HARDWARE_MODULE_*` in `system_error.h` only for **brand-new** HAL modules (see [celestia-system-core](../skills/celestia-system-core.en.md)).
-> Per-module checklist and AI worksheets: [roles.en.md Section 4](roles.en.md#4-new-soc-port-developer), [celestia-hardware](../skills/celestia-hardware.en.md#new-soc-chip-sdk--per-module-hal).
-> **RTOS/AOS chips** (SDK user space only `.a`, e.g. Sky39AV130/mira): beyond the above, POSIX compat shims, `.so`→`.a` static link, and BSP kernel patches — see [celestia-aos-port](../skills/celestia-aos-port.en.md) (port Linux products to AOS).
+> **system/core**: leave as-is when only adding HAL for existing modules; append `HARDWARE_MODULE_*` in `system_error.h` only for **brand-new** HAL modules (see celestia-system-core（见 `AGENTS.md` / DevStudio Skill）).
+> Per-module checklist and AI worksheets: [roles.en.md Section 4](roles.en.md#4-new-soc-port-developer), celestia-hardware（见 `AGENTS.md` / DevStudio Skill）.
+> **RTOS/AOS chips** (SDK user space only `.a`, e.g. Sky39AV130/mira): beyond the above, POSIX compat shims, `.so`→`.a` static link, and BSP kernel patches — see celestia-aos-port（见 `AGENTS.md` / DevStudio Skill） (port Linux products to AOS).
 
 ---
 

@@ -1,5 +1,3 @@
-<p align="right"><a href="deploy.en.md">English</a> | <b>中文</b></p>
-
 # 部署与上板验证
 
 > 前置：已完成 [构建](build.md)，产物在 `out/<product>/install/`，打包后的镜像/烧录工具在 `out/<product>/burntool/`。
@@ -140,4 +138,4 @@ app_main_platform_startup()
 ## 延伸阅读
 
 - [guide/application.md](../guide/application.md) — launch_mode 与模块
-- [celestia-project skill](../skills/celestia-project.md) — 板级 overlay 与串口
+- celestia-project skill — 板级 overlay 与串口

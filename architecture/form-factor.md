@@ -1,5 +1,3 @@
-<p align="right"><a href="form-factor.en.md">English</a> | <b>中文</b></p>
-
 # 产品形态（Form Factor）
 
 > **文档定位**：本文定义 Celestia 的**产品形态**，并给出判据、启动分岔、保活责任与选型流程。
@@ -170,7 +168,7 @@ int module_start(void);                    /* 主循环，无显示形态必须�
 | `app_main_defer_gui_stubs.c` | 提供 trampoline，首次使用时 `dlopen` 共享库 |
 | `app_main_defer_gui_noop.c` | 未开启该开关时的空实现（如 `anypi_nova_dev`） |
 
-> 详见 [celestia-application](../skills/celestia-application.md)。
+> 详见 celestia-application。
 
 ---
 
@@ -296,9 +294,9 @@ CONFIG_APP_MAIN_TARGET        = luna_main
 | 术语与命名对照表 §2 | [glossary.md §2](../glossary.md#2-产品形态-iotcamera-ai_glasses-tablet-wearable重点) |
 | 分层 · 契约 · 运行期 · 启动链路 · 构建 | [overview.md](overview.md) |
 | 目录职责与新文件放置 | [directory-map.md](directory-map.md) |
-| 应用层开发（含无显示业务 SO） | [skills/celestia-application.md](../skills/celestia-application.md) |
+| 应用层开发（含无显示业务 SO） | Skill `celestia-application`（见 `AGENTS.md`） |
 | 新增产品与 BOARD | [quick-start/bsp-and-products.md](../quick-start/bsp-and-products.md) |
-| 上板排障 | [skills/celestia-debug.md](../skills/celestia-debug.md) |
+| 上板排障 | Skill `celestia-debug`（见 `AGENTS.md`） |
 
 ---
 

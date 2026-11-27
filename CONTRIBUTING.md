@@ -41,7 +41,7 @@ DCO 全文见 <https://developercertificate.org/>。未带 `Signed-off-by` 的�
 - 版权行格式：`Copyright (c) <当前年份> Guangzhou Anyka Microelectronics Co., Ltd.`
   （年份填当前年份，公司名称以此为准）。
 - 文件不得以 BOM 起始；SPDX 行必须是文件绝对首行。
-- 匹配周边代码的注释密度、命名与缩进风格；命名/头文件规范详见 `skills/celestia-contributing.md`。
+- 匹配周边代码的注释密度、命名与缩进风格；命名/头文件规范见 `AGENTS.md` 命中的 celestia-contributing Skill。
 
 ## 安全与敏感信息
 

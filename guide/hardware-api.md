@@ -1,5 +1,3 @@
-<p align="right"><a href="hardware-api.en.md">English</a> | <b>中文</b></p>
-
 # Hardware HAL API 参考手册（对外可查接口）
 
 > **本文范围**：Hardware HAL 对外可查接口参考：逐模块给出标识、数据结构、ops 与错误码。
@@ -1223,6 +1221,6 @@ dev->common.close(&dev->common);
 
 - [hardware-hal.md](hardware-hal.md) — 架构总览与扩展流程
 - [framework.md](framework.md) — Framework 如何调用 HAL
-- [新增 SoC](../skills/celestia-hardware.md) — 新增 SoC / HAL
+- 新增 SoC — 新增 SoC / HAL
 - [guide/api-index.md](api-index.md) — 全局 API 索引
 - [quick-start/bsp-and-products.md](../quick-start/bsp-and-products.md) — HAL 与 BSP 集成

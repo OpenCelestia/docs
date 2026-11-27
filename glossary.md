@@ -169,10 +169,10 @@ flowchart LR
 | **AOS 工具链** | `arm-none-eabi-`，默认安装于 `/opt/arm-alios-eabi`，缺失时从 SDK 内 tarball 自动解压到 `out/<product>/toolchain/` | `setup_toolchain.sh` |
 | ↳ 命名提示 | 工具链目录名带 `alios`（`arm-alios-eabi`）是**安凯微 SDK 沿用的历史命名**，不代表本项目依赖 AliOS 应用框架；文档与代码一律以 `aos` 作为 OS 标识 | 同上 |
 | **Linux** | `CONFIG_OS_NAME=linux` 的产品形态：多进程、动态库、POSIX 齐全 | `project/anypi_nova*`、`project/anypi_luna*` |
-| **musl / uClibc** | RISC-V（AV200）用 **musl**（`riscv64-anyka-linux-musl-`）；ARM（AV100_V2）用 **uClibc**（`arm-anycloud-linux-uclibcgnueabi-`）。**C 库不同 ⇒ 不能混用预编译产物** | 各 SoC SDK 的 `rules.mk`、`docs/skills/celestia-scripts.md` |
+| **musl / uClibc** | RISC-V（AV200）用 **musl**（`riscv64-anyka-linux-musl-`）；ARM（AV100_V2）用 **uClibc**（`arm-anycloud-linux-uclibcgnueabi-`）。**C 库不同 ⇒ 不能混用预编译产物** | 各 SoC SDK 的 `rules.mk`、`devstudio/celestia/` scripts Skill（见 `AGENTS.md`） |
 | **rootfs** | 只读根文件系统镜像；产品差异通过 `project/<product>/system/<SoC>/<SDK>/board/<BOARD>/rootfs/` overlay 注入 | `build_rootfs.sh` |
 | ↳ 路径差异 | Linux 产品为 `rootfs/utils/etc/config/`；AOS 产品（`anypi_mira_dev`）为 `rootfs/resource/etc/config/` | `project/anypi_mira_dev/system/Sky39AV130/V1.01/board/.../rootfs/resource/etc/config/` |
-| **POSIX 兼容层** | AOS 移植时补的 shim（线程/信号/时间/socket 等），只放在 project overlay 与 HAL 里，**不污染公用代码** | `docs/skills/celestia-aos-port.md` |
+| **POSIX 兼容层** | AOS 移植时补的 shim（线程/信号/时间/socket 等），只放在 project overlay 与 HAL 里，**不污染公用代码** | `devstudio/celestia/` aos-port Skill（见 `AGENTS.md`） |
 
 ---
 
@@ -269,8 +269,8 @@ flowchart LR
 | **`build.sh`** | 唯一构建入口，含产品选择、工具链注入、分层编译、打包 | `./build.sh --product-name <product>` |
 | **`out/<product>/`** | 构建输出根：`install/`（安装树）、`burntool/`（镜像与烧录工具）、`release-src/`（最小源码集）、`build/project/include/`（生成的 `config.h`） | `scripts/build.sh` |
 | **PASS/FAIL** | 上板验证的闭环判据（串口日志 + 关键路径自查） | `docs/quick-start/deploy.md` |
-| **Bug A–G** | 调试 skill 里的故障分类法，用于把现象映射到层 | `docs/skills/celestia-debug.md` |
-| **16MB NOR** | 低成本机型的闪存预算约束，决定分区与裁剪策略 | `docs/skills/celestia-project.md` |
+| **Bug A–G** | 调试 skill 里的故障分类法，用于把现象映射到层 | `devstudio/celestia/` debug Skill（见 `AGENTS.md`） |
+| **16MB NOR** | 低成本机型的闪存预算约束，决定分区与裁剪策略 | `devstudio/celestia/` project Skill（见 `AGENTS.md`） |
 
 ---
 
@@ -295,7 +295,8 @@ flowchart LR
 
 | 术语 | 本项目含义 | 代码依据 |
 |:-----|:-----------|:---------|
-| **skill** | 面向 AI 编码助手的**可执行知识单元**，含边界、命令、排障路径 | `docs/skills/<name>.md` |
+| **skill** | 面向 AI 编码助手的**可执行知识单元**，含边界、命令、排障路径 | 运行时：`devstudio/**/SKILL.md`（见工程根 `AGENTS.md`） |
+| **DevStudio** | 工程根 `devstudio/`：CLI / MCP / Skill；维护 `AGENTS.md` 与 `devstudio.yaml` | [guide/devstudio.md](guide/devstudio.md) |
 | **guide** | 面向人的**概念与 API 说明** | `docs/guide/` |
 | **quick-start** | 拉码 → 编译 → 烧录 → 验证的线性路径 | `docs/quick-start/` |
 | **事实优先级** | 文档与代码冲突时的采信顺序：`tests/` › `*.c` › `*.h` › `Makefile` / `build.sh` / `config.mk` › `docs/` | `docs/CONTRIBUTING.md` |

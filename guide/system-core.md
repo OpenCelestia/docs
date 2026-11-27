@@ -1,5 +1,3 @@
-<p align="right"><a href="system-core.en.md">English</a> | <b>中文</b></p>
-
 # System Core
 
 > **本文范围**：System Core：被各层横向共享的基础能力 —— 错误码体系、日志、配置管理、线程与锁、时间定时器、内存、容器与工具函数。

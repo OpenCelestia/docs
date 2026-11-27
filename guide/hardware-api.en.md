@@ -1223,6 +1223,6 @@ dev->common.close(&dev->common);
 
 - [hardware-hal.en.md](hardware-hal.en.md) — Architecture overview and extension workflow
 - [framework.en.md](framework.en.md) — How Framework calls HAL
-- [Adding a SoC](../skills/celestia-hardware.en.md) — Adding SoC / HAL
+- Adding a SoC（见 `AGENTS.md` / DevStudio Skill） — Adding SoC / HAL
 - [guide/api-index.en.md](api-index.en.md) — Global API index
 - [quick-start/bsp-and-products.en.md](../quick-start/bsp-and-products.en.md) — HAL and BSP integration

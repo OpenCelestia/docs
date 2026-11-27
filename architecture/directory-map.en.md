@@ -15,6 +15,7 @@ celestia/                        # Source root
 ├── hardware/                    # ③ Hardware adaptation layer
 ├── system/core/                 # ④ System foundation libraries
 ├── project/<product>/           # ⑤ Product engineering (config + overlay)
+├── devstudio/                    # IDE tool layer (CLI / MCP / Skill)
 ├── scripts/                     # Build scripts
 ├── third_party/                 # Third-party components
 └── docs/                        # Documentation (this tree)
@@ -27,6 +28,7 @@ celestia/                        # Source root
 | `hardware/` | ③ | Peripherals and media capabilities per SoC, unified ops upward | Business logic, GUI, references to upper-layer symbols |
 | `system/core/` | ④ | Logging, config, threads, timers, error codes, memory, crypto, containers, etc. | Any dependency on ①②③ |
 | `project/` | ⑤ + config | One `config.mk` and BSP overlay, rootfs config, packaging scripts per product | Shared business code |
+| `devstudio/` | Tools | CLI / MCP / Skill; maintains root `AGENTS.md` and `devstudio.yaml` | Product business source |
 | `scripts/` | Build | `build.sh` body, packaging, toolchain injection | Runtime logic |
 | `third_party/` | Dependencies | Third-party library sources and build rules | Business code, product switches |
 | `docs/` | Documentation | This documentation set | Code |

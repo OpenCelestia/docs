@@ -1,5 +1,3 @@
-<p align="right"><a href="bsp-and-products.en.md">English</a> | <b>中文</b></p>
-
 # Build & BSP
 
 ---
@@ -542,9 +540,9 @@ flowchart TB
 | ⑧ 构建验证 | `./build.sh --product-name <p>`；L1→L5 | 镜像 + 上板 |
 
 > **通常无需改**：Application / Framework / `hardware/include/`。
-> **system/core**：仅为已有模块补新 SoC HAL 时**不动**；新增**全新** HAL 模块时才在 `system_error.h` 追加 `HARDWARE_MODULE_*`（见 [celestia-system-core](../skills/celestia-system-core.md)）。
-> 逐模块清单与 AI 工作表：[roles.md §4](roles.md#4-新芯片移植开发者)、[celestia-hardware](../skills/celestia-hardware.md#新增-soc芯片-sdk--逐模块-hal)。
-> **RTOS/AOS 芯片**（SDK 用户态只产 `.a`，如 Sky39AV130/mira）：上述流程之外还需 POSIX compat 垫片、`.so`→`.a` 静态链接与 BSP 内核补丁，走 [celestia-aos-port](../skills/celestia-aos-port.md)（Linux 产品移植 AOS）。
+> **system/core**：仅为已有模块补新 SoC HAL 时**不动**；新增**全新** HAL 模块时才在 `system_error.h` 追加 `HARDWARE_MODULE_*`（见 celestia-system-core）。
+> 新芯片追问清单：[roles.md §4](roles.md#4-新芯片)、celestia-hardware。
+> **RTOS/AOS 芯片**（SDK 用户态只产 `.a`，如 Sky39AV130/mira）：上述流程之外还需 POSIX compat 垫片、`.so`→`.a` 静态链接与 BSP 内核补丁，走 celestia-aos-port（Linux 产品移植 AOS）。
 
 ---
 
@@ -625,4 +623,4 @@ sh /etc/config/app_01_start.sh
 - HAL 接口与扩展：[guide/hardware-hal.md](../guide/hardware-hal.md) / [guide/hardware-api.md](../guide/hardware-api.md)（新增 SoC 流程见本文 §9）
 - 应用层与启动形态：[guide/application.md](../guide/application.md)
 - System Core：[guide/system-core.md](../guide/system-core.md) / [guide/system-core-api.md](../guide/system-core-api.md)
-- 按角色导读：[roles.md](roles.md)
+- 场景追问清单：[roles.md](roles.md)

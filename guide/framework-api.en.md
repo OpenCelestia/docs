@@ -1233,7 +1233,7 @@ Bitmap load and pixel utilities (see `framework/ui/graphics/include/bitmap.h` fo
 ## 15. References
 
 - Concepts and call flow: [framework.en.md](framework.en.md)
-- Extending functionality: [Adding a Framework service](../skills/celestia-framework.en.md)
+- Extending functionality: Adding a Framework service（见 `AGENTS.md` / DevStudio Skill）
 - System Core: [system-core.en.md](system-core.en.md)
 - HAL: [hardware-hal.en.md](hardware-hal.en.md)
 - API index: [guide/api-index.en.md](api-index.en.md)

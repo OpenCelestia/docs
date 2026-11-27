@@ -170,7 +170,7 @@ int module_start(void);                    /* main loop; headless form must bloc
 | `app_main_defer_gui_stubs.c` | Trampolines; `dlopen` shared lib on first use |
 | `app_main_defer_gui_noop.c` | No-op when switch off (e.g. `anypi_nova_dev`) |
 
-> See [celestia-application](../skills/celestia-application.en.md).
+> See celestia-application（见 `AGENTS.md` / DevStudio Skill）.
 
 ---
 
@@ -296,9 +296,9 @@ Existing forms cover all current products; `AI_GLASSES` (chip `KM02G`) is the on
 | Glossary §2 | [glossary.en.md §2](../glossary.en.md#2-product-form-factors-iotcamera-ai_glasses-tablet-wearable-focus) |
 | Layering · contracts · runtime · startup · build | [overview.en.md](overview.en.md) |
 | Directory duties and placement | [directory-map.en.md](directory-map.en.md) |
-| Application layer (incl. headless business SO) | [skills/celestia-application.en.md](../skills/celestia-application.en.md) |
+| Application layer (incl. headless business SO) | celestia-application Skill (see `AGENTS.md`) |
 | New products and BOARD | [quick-start/bsp-and-products.en.md](../quick-start/bsp-and-products.en.md) |
-| On-board debugging | [skills/celestia-debug.en.md](../skills/celestia-debug.en.md) |
+| On-board debugging | celestia-debug Skill (see `AGENTS.md`) |
 
 ---
 

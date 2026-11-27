@@ -160,30 +160,19 @@ Where a new file goes: [directory map](architecture/directory-map.en.md).
 | Add a board or SoC | [bsp-and-products.en.md](quick-start/bsp-and-products.en.md) |
 | Look up an API | [api-index.en.md](guide/api-index.en.md) |
 | Doc and code rules | [conventions.en.md](guide/conventions.en.md) |
-| Use the AI role skills | [roles.en.md](quick-start/roles.en.md) → [skills](skills/README.en.md) |
-| Push an app with Studio | [studio_agents.en.md](guide/studio_agents.en.md) |
-| Debug on a board | [celestia-debug.en.md](skills/celestia-debug.en.md) |
+| Install / use DevStudio (CLI / MCP / push) | [devstudio.en.md](guide/devstudio.en.md) |
+| Work with AI by scenario | [roles.en.md](quick-start/roles.en.md) → Skills hit by root `AGENTS.md` |
+| Push an app with Studio | [devstudio.en.md](guide/devstudio.en.md) |
+| Debug / push on a board | [devstudio.en.md](guide/devstudio.en.md) §7 · celestia-debug / celestia-studio Skill |
 | See what was removed before GitHub | [open-source.en.md](open-source.en.md) |
 
 ---
 
 ## 8. Skills
 
-Source of truth: [skills/README.en.md](skills/README.en.md). Copies under `.claude/skills/` and `.cursor/skills/` are not the source.
+Skill bodies live under `devstudio/celestia/` and `devstudio/sdk/`, referenced from workspace-root **`AGENTS.md`** (written by `./build.sh` / `devstudio init`).
+**Do not** copy them into `.cursor` / `.claude` / `.vscode`. See [guide/devstudio.en.md](guide/devstudio.en.md); MCP defs are under `devstudio/ide/`.
 
-| Skill | Scope |
-|:------|:------|
-| [celestia](skills/celestia.en.md) | Routing, cross-layer rules, layered build |
-| [celestia-aos-port](skills/celestia-aos-port.en.md) | Linux product to AOS |
-| [celestia-application](skills/celestia-application.en.md) | Apps, cloud, IOTCamera `.so` |
-| [celestia-framework](skills/celestia-framework.en.md) | Services |
-| [celestia-hardware](skills/celestia-hardware.en.md) | HAL, new SoC |
-| [celestia-system-core](skills/celestia-system-core.en.md) | system/core |
-| [celestia-project](skills/celestia-project.en.md) | Product, BOARD, BSP |
-| [celestia-scripts](skills/celestia-scripts.en.md) | build.sh |
-| [celestia-third-party](skills/celestia-third-party.en.md) | third_party |
-| [celestia-debug](skills/celestia-debug.en.md) | On-board PASS/FAIL, bug classes A–G |
-| [celestia-contributing](skills/celestia-contributing.en.md) | Conventions |
 
 ---
 
@@ -201,6 +190,6 @@ Source of truth: [skills/README.en.md](skills/README.en.md). Copies under `.clau
 
 [Top](#celestia) · [Architecture](architecture/overview.en.md) ·
 [Form factors](architecture/form-factor.en.md) · [Glossary](glossary.en.md) ·
-[Conventions](guide/conventions.en.md) · [Studio](guide/studio_agents.en.md)
+[Conventions](guide/conventions.en.md) · [DevStudio](guide/devstudio.en.md)
 
 </div>

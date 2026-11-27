@@ -1,10 +1,8 @@
-<p align="right"><a href="application.en.md">English</a> | <b>中文</b></p>
-
 # Application Layer
 
 > **本文范围**：应用层：`app_main` 启动链路与 `launch_mode`、`packages/` 三类包（IOTCamera / TABLET / WEARABLE）、系统服务与云平台适配、产品差异。
 >
-> 分层与契约见 [架构总览](../architecture/overview.md)；服务接口见 [framework.md](framework.md)；实操流程见 [celestia-application](../skills/celestia-application.md)。
+> 分层与契约见 [架构总览](../architecture/overview.md)；服务接口见 [framework.md](framework.md)；实操流程见 celestia-application。
 
 ## 1. 架构总览
 
@@ -185,13 +183,12 @@ main()
 | 目录 | 说明 |
 |------|------|
 | `launcher/` | Nova 桌面与主入口 |
-| `ipc_camera/` | IPC 摄像机场景 |
+| `ipc_camera/` | IPC 摄像机场景（带屏摄像机） |
 | `camera/` | 本地预览 / 录像 |
 | `audio_algo/` | 音频算法 UI |
 | `setting/` | 系统设置 |
-| `volc_engine/` | 火山引擎 UI |
-| `clock/` | 时钟 |
-| `file_manager/` | 文件浏览 |
+
+release 版本仅包含上表应用（桌面入口 + 带屏摄像机、相机、音频算法、设置）；其他 tablet 演示应用未纳入。
 
 应用是否出现在桌面由 `tablet_app_registry` 决定，数据优先从 `settings.json` 读取，兼容旧的 `installed_apps.json`。
 
@@ -249,7 +246,21 @@ IOTCamera 产品通常是：关闭 `CONFIG_APP_PACKAGES_TABLET` / `CONFIG_APP_PA
 
 ## 13. 扩展阅读
 
-- [celestia-application.md](../skills/celestia-application.md) - 新增 App / cloud / `IOTCamera` SO
+- celestia-application.md - 新增 App / cloud / `IOTCamera` SO
 - [framework.md](framework.md) - Framework 服务
 - [deploy.md](../quick-start/deploy.md) - 上板部署
-- [roles.md](../quick-start/roles.md) - AI 角色填写表
+- [roles.md](../quick-start/roles.md) - 场景追问清单
+- celestia-studio - 主机推板 / 7777 通道（Skill，不在本 guide）
+
+
+## 14. 设备同步代理（`application/services/studio`）
+
+设备端代理与产品配置有关，**不是**主机 DevStudio 文档。细节与推板流程见仓库内 celestia-studio Skill。
+
+| 项 | 说明 |
+|:---|:-----|
+| 源码 | `application/services/studio/`，公开头 `include/studio.h`，产出 `libstudio.so`，TCP **7777** |
+| 编译 | 产品 `config.mk` 开 `CONFIG_APP_STUDIO=y`；`application/Makefile` 装到 rootfs `/usr/lib` |
+| 加载 | 板级 `settings.json` 的 `modules` 增加 `type:so`，`so_path=/usr/lib/libstudio.so` |
+| Nova 落点 | tablet 应用多在 `/mnt/install/apps/<id>`；`setting` / `libstudio.so` 常进只读 `usr.sqsh4`（APP 分区） |
+| 换产品 | 只改该产品 `config.mk` + `settings.json`，**不要**再复制一份 `services/studio/` |

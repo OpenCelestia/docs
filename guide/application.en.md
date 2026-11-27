@@ -4,7 +4,7 @@
 
 > **Scope of this document**: Application layer: `app_main` startup chain and `launch_mode`, three package types under `packages/` (IOTCamera / TABLET / WEARABLE), system services and cloud platform adapters, product differences.
 >
-> Layering and contracts: [Architecture overview](../architecture/overview.en.md); service interfaces: [framework.en.md](framework.en.md); hands-on flow: [celestia-application](../skills/celestia-application.en.md).
+> Layering and contracts: [Architecture overview](../architecture/overview.en.md); service interfaces: [framework.en.md](framework.en.md); hands-on flow: celestia-application（见 `AGENTS.md` / DevStudio Skill）.
 
 ## 1. Architecture Overview
 
@@ -249,7 +249,7 @@ IOTCamera products typically disable `CONFIG_APP_PACKAGES_TABLET` / `CONFIG_APP_
 
 ## 13. Further Reading
 
-- [celestia-application.en.md](../skills/celestia-application.en.md) — Add App / cloud / `IOTCamera` SO
+- celestia-application.en.md（见 `AGENTS.md` / DevStudio Skill） — Add App / cloud / `IOTCamera` SO
 - [framework.en.md](framework.en.md) — Framework services
 - [deploy.en.md](../quick-start/deploy.en.md) — On-device deployment
 - [roles.en.md](../quick-start/roles.en.md) — AI role forms

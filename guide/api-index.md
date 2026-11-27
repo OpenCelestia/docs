@@ -1,5 +1,3 @@
-<p align="right"><a href="api-index.en.md">English</a> | <b>中文</b></p>
-
 # API Reference Index
 
 > **本文范围**：API 索引：按层给出公开头文件目录、调用关系与对应文档入口；本页只做导航，不重复接口细节。
@@ -88,7 +86,7 @@ flowchart TB
 
 | 任务 | 文档 |
 |------|------|
-| 新增 tablet App | [新增 tablet App](../skills/celestia-application.md) |
-| 新增云平台 | [新增云平台](../skills/celestia-application.md) |
-| 新增 Framework 服务 | [新增 Framework 服务](../skills/celestia-framework.md) |
-| 新增 SoC | [新增 SoC](../skills/celestia-hardware.md) |
+| 新增 tablet App | 新增 tablet App |
+| 新增云平台 | 新增云平台 |
+| 新增 Framework 服务 | 新增 Framework 服务 |
+| 新增 SoC | 新增 SoC |
